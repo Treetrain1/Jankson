@@ -13,6 +13,12 @@ version = "1.2.3"
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+
+    withSourcesJar()
+}
+
+loom {
+    runtimeOnlyLog4j = true
 }
 
 repositories {
@@ -53,6 +59,9 @@ tasks {
     }
 }
 
+val sourcesJar: Task by tasks
+val javadocJar: Task by tasks
+
 var versionSuffix = ""
 if (System.getenv().containsKey("BUILD_NUMBER")) {
     versionSuffix = "-${System.getenv()["BUILD_NUMBER"]!!}";
@@ -60,10 +69,18 @@ if (System.getenv().containsKey("BUILD_NUMBER")) {
 
 tasks.withType(JavaCompile::class) {
     options.encoding = "UTF-8"
+    options.release = 17
+    options.isFork = true
+    options.isIncremental = true
+}
+
+artifacts {
+    archives(sourcesJar)
+    archives(javadocJar)
 }
 
 if (file("private.gradle").exists()) {
     apply(from = "private.gradle")
 }
 
-defaultTasks = mutableListOf("clean", "build", "sourcesJar");
+//defaultTasks = mutableListOf("clean", "build", "sourcesJar");
