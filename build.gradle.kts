@@ -27,8 +27,6 @@ dependencies {
     testImplementation("junit:junit:4.13.1")
 
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
-    //implementation("com.mojang:datafixerupper:6.0.8")
-    //implementation("org.jetbrains:annotations:24.0.1")
 }
 
 tasks.jar {
