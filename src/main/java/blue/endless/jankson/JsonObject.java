@@ -673,17 +673,16 @@ public class JsonObject extends JsonElement implements Map<String, JsonElement> 
 				put(entry.getKey(), entry.getValue());
 			}
 		}
-	
+
 		@Override
 		@Nullable
 		public JsonElement remove(@Nullable Object key) {
 			if (!(key instanceof String str)) return null;
 
-			List<Entry> entryList = List.copyOf(entries);
-			for (Entry entry : entryList) {
+			for(int i=0; i<entries.size(); i++) {
+				Entry entry = entries.get(i);
 				if (entry.key.equalsIgnoreCase(str)) {
-					entries.remove(entry);
-					return entry.value;
+					return entries.remove(i).value;
 				}
 			}
 			return null;

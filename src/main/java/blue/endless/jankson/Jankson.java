@@ -69,14 +69,14 @@ public class Jankson {
 
 	private int retries = 0;
 	private SyntaxError delayedError = null;
-	
+
 	private Jankson(Builder builder) {
 		this.marshaller = builder.marshaller;
 		this.allowBareRootObject = builder.allowBareRootObject;
 		this.dataFixer = builder.dataFixer;
 		this.version = builder.version;
 	}
-	
+
 	@Nonnull
 	public JsonObject load(String s) throws SyntaxError {
 		ByteArrayInputStream in = new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8));
@@ -86,19 +86,19 @@ public class Jankson {
 			throw new RuntimeException(ex); //ByteArrayInputStream never throws
 		}
 	}
-	
+
 	@Nonnull
 	public JsonObject load(File f) throws IOException, SyntaxError {
 		try(InputStream in = new FileInputStream(f)) {
 			return load(in);
 		}
 	}
-	
+
 	/*
 	private static boolean isLowSurrogate(int i) {
 		return (i & 0b1100_0000) == 0b1000_0000;
 	}
-	
+
 	private static final int BAD_CHARACTER = 0xFFFD;
 	public int getCodePoint(InputStream in) throws IOException {
 		int i = in.read();
@@ -158,7 +158,7 @@ public class Jankson {
 		//we know it's 0b10xx_xxxx down here, so it's an orphaned low surrogate.
 		return BAD_CHARACTER;
 	}*/
-	
+
 	@Nonnull
 	public JsonObject load(InputStream in) throws IOException, SyntaxError {
 		InputStreamReader reader = new InputStreamReader(in, StandardCharsets.UTF_8);
@@ -169,11 +169,104 @@ public class Jankson {
 		push(new ObjectParserContext(allowBareRootObject), it -> root = it);
 		
 		//int codePoint = 0;
-		while (root == null) {
-			if (delayedError!=null) {
+		try {
+			while (root == null) {
+				if (delayedError != null) {
+					throw delayedError;
+				}
+
+				if (withheldCodePoint != -1) {
+					retries++;
+					if (retries > 25) throw new IOException("Parser got stuck near line " + line + " column " + column);
+					processCodePoint(withheldCodePoint);
+				} else {
+					//int inByte = getCodePoint(in);
+					int inByte = reader.read();
+					if (inByte == -1) {
+						//Walk up the stack sending EOF to things until either an error occurs or the stack completes
+						while (!contextStack.isEmpty()) {
+							ParserFrame<?> frame = contextStack.pop();
+							try {
+								frame.context.eof();
+								if (frame.context.isComplete()) {
+									frame.supply();
+								}
+							} catch (SyntaxError error) {
+								error.setStartParsing(frame.startLine, frame.startCol);
+								error.setEndParsing(line, column);
+								throw error;
+							}
+						}
+						if (root == null) {
+							root = new JsonObject();
+							root.marshaller = marshaller;
+						}
+
+						return root;
+					}
+					processCodePoint(inByte);
+				}
+			}
+
+			return root;
+		} finally {
+			@Nullable DataFixer fixer = this.dataFixer;
+			@Nullable Integer newVersion = this.version;
+			if (fixer != null && newVersion != null) {
+                assert root != null;
+                root.dataFix(fixer, newVersion);
+            }
+		}
+	}
+	
+	/**
+	 * Experimental: Parses the supplied String as a JsonElement, which may or may not be an object at the root level
+	 * <p>
+	 * Does not support datafixers
+	 */
+	@Nonnull
+	public JsonElement loadElement(String s) throws SyntaxError {
+		ByteArrayInputStream in = new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8));
+		try {
+			return loadElement(in);
+		} catch (IOException ex) {
+			throw new RuntimeException(ex); //ByteArrayInputStream never throws
+		}
+	}
+	
+	/**
+	 * Experimental: Parses the supplied File as a JsonElement, which may or may not be an object at the root level
+	 * <p>
+	 * Does not support datafixers
+	 */
+	@Nonnull
+	public JsonElement loadElement(File f) throws IOException, SyntaxError {
+		try(InputStream in = new FileInputStream(f)) {
+			return loadElement(in);
+		}
+	}
+	
+	private AnnotatedElement rootElement;
+	/**
+	 * Experimental: Parses the supplied InputStream as a JsonElement, which may or may not be an object at the root level
+	 * <p>
+	 * Does not support datafixers
+	 */
+	@Nonnull
+	public JsonElement loadElement(InputStream in) throws IOException, SyntaxError {
+		InputStreamReader reader = new InputStreamReader(in, StandardCharsets.UTF_8);
+
+		withheldCodePoint = -1;
+		rootElement = null;
+
+		push(new ElementParserContext(), it -> rootElement = it);
+
+		//int codePoint = 0;
+		while (rootElement == null) {
+			if (delayedError != null) {
 				throw delayedError;
 			}
-			
+
 			if (withheldCodePoint!=-1) {
 				retries++;
 				if (retries>25) throw new IOException("Parser got stuck near line "+line+" column "+column);
@@ -196,83 +289,6 @@ public class Jankson {
 							throw error;
 						}
 					}
-					if (root==null) {
-						root = new JsonObject();
-						root.marshaller = marshaller;
-						@Nullable DataFixer fixer = this.dataFixer;
-						@Nullable Integer newVersion = this.version;
-						if (fixer != null && newVersion != null)
-							root.dataFix(fixer, newVersion);
-					}
-					return root;
-				}
-				processCodePoint(inByte);
-			}
-		}
-		
-		return root;
-	}
-	
-	/** Experimental: Parses the supplied String as a JsonElement, which may or may not be an object at the root level */
-	@Nonnull
-	public JsonElement loadElement(String s) throws SyntaxError {
-		ByteArrayInputStream in = new ByteArrayInputStream(s.getBytes(Charset.forName("UTF-8")));
-		try {
-			return loadElement(in);
-		} catch (IOException ex) {
-			throw new RuntimeException(ex); //ByteArrayInputStream never throws
-		}
-	}
-	
-	/** Experimental: Parses the supplied File as a JsonElement, which may or may not be an object at the root level */
-	@Nonnull
-	public JsonElement loadElement(File f) throws IOException, SyntaxError {
-		try(InputStream in = new FileInputStream(f)) {
-			return loadElement(in);
-		}
-	}
-	
-	private AnnotatedElement rootElement;
-	/** Experimental: Parses the supplied InputStream as a JsonElement, which may or may not be an object at the root level */
-	@Nonnull
-	public JsonElement loadElement(InputStream in) throws IOException, SyntaxError {
-		InputStreamReader reader = new InputStreamReader(in, StandardCharsets.UTF_8);
-		
-		withheldCodePoint = -1;
-		rootElement = null;
-		
-		push(new ElementParserContext(), (it)->{
-			rootElement = it;
-		});
-		
-		//int codePoint = 0;
-		while (rootElement==null) {
-			if (delayedError!=null) {
-				throw delayedError;
-			}
-			
-			if (withheldCodePoint!=-1) {
-				retries++;
-				if (retries>25) throw new IOException("Parser got stuck near line "+line+" column "+column);
-				processCodePoint(withheldCodePoint);
-			} else {
-				//int inByte = getCodePoint(in);
-				int inByte = reader.read();
-				if (inByte==-1) {
-					//Walk up the stack sending EOF to things until either an error occurs or the stack completes
-					while(!contextStack.isEmpty()) {
-						ParserFrame<?> frame = contextStack.pop();
-						try {
-							frame.context.eof();
-							if (frame.context.isComplete()) {
-								frame.supply();
-							}
-						} catch (SyntaxError error) {
-							error.setStartParsing(frame.startLine, frame.startCol);
-							error.setEndParsing(line, column);
-							throw error;
-						}
-					}
 					if (rootElement==null) {
 						return JsonNull.INSTANCE;
 					} else {
@@ -283,7 +299,7 @@ public class Jankson {
 				}
 			}
 		}
-		
+
 		return rootElement.getElement();
 	}
 	
@@ -321,18 +337,18 @@ public class Jankson {
 	public <T> T fromJsonCarefully(JsonObject obj, Class<T> clazz) throws DeserializationException {
 		return marshaller.marshallCarefully(clazz, obj);
 	}
-	
+
 	public <T> JsonElement toJson(T t) {
 		return marshaller.serialize(t);
 	}
 	
-	public <T> JsonElement toJson(T t, blue.endless.jankson.api.Marshaller alternateMarshaller) {
+	public <T> JsonElement toJson(T t, Marshaller alternateMarshaller) {
 		return alternateMarshaller.serialize(t);
 	}
 	
 	private void processCodePoint(int codePoint) throws SyntaxError {
 		ParserFrame<?> frame = contextStack.peek();
-		if (frame==null) throw new IllegalStateException("Parser problem! The ParserContext stack underflowed! (line "+line+", col "+column+")");
+		if (frame == null) throw new IllegalStateException("Parser problem! The ParserContext stack underflowed! (line "+line+", col "+column+")");
 		
 		//Do a limited amount of tail call recursion
 		try {
@@ -348,7 +364,7 @@ public class Jankson {
 		}
 		
 		try {
-			if (frame==null) return; //We ran out of stack frames due to tail call recursion. This means the file's done.
+			if (frame == null) return; //We ran out of stack frames due to tail call recursion. This means the file's done.
 			boolean consumed = frame.context().consume(codePoint, this);
 			if (frame.context.isComplete()) {
 				contextStack.pop();

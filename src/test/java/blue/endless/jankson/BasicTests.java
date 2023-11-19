@@ -59,7 +59,7 @@ public class BasicTests {
 		Assert.assertNotEquals("Non-Equal objects should produce non-equal json primitives", new JsonPrimitive("foo"), new JsonPrimitive("bar"));
 		Assert.assertNotEquals("Non-Equal objects should produce non-equal json primitives", new JsonPrimitive(42.0), new JsonPrimitive(42.1));
 		
-		Assert.assertNotEquals("Intended quirk behavior: 42.0 != 42", new JsonPrimitive(42.0), new JsonPrimitive(42F));
+		Assert.assertNotEquals("Intended quirk behavior: 42.0 != 42", new JsonPrimitive(42.0), new JsonPrimitive(42L));
 	}
 	
 	

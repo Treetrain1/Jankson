@@ -29,10 +29,10 @@ import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 import blue.endless.jankson.api.Escaper;
+
 
 public class JsonPrimitive extends JsonElement {
 	/** Convenience instance of json "true". Don't use identity comparison (==) on these! Use equals instead. */
@@ -40,7 +40,7 @@ public class JsonPrimitive extends JsonElement {
 	/** Convenience instance of json "false". Don't use identity comparison (==) on these! Use equals instead. */
 	public static JsonPrimitive FALSE = new JsonPrimitive(Boolean.FALSE);
 	
-	@Nonnull
+	@NotNull
 	private Object value;
 	
 	private JsonPrimitive() {}
@@ -53,17 +53,19 @@ public class JsonPrimitive extends JsonElement {
 	 * because using function polymorphism often winds up validating the results "for free".
 	 * @param value
 	 */
-	public JsonPrimitive(@Nonnull Object value) {
+	public JsonPrimitive(@NotNull Object value) {
 		if (value instanceof Character) {
-			this.value = ""+(Character)value;
+			this.value = "" + value;
 		} else if (value instanceof Long) {
 			this.value = value;
 		} else if (value instanceof Double) {
 			this.value = value;
-		} else if (value instanceof BigInteger) {
-			this.value = ((BigInteger)value).toString(16);
-		} else if (value instanceof Float) {
-			this.value = Double.valueOf((Float)value);
+		} else if (value instanceof BigInteger bigInteger) {
+			this.value = bigInteger.toString(16);
+		} else if (value instanceof BigDecimal bigDecimal) {
+			this.value = bigDecimal.toString();
+		} else if (value instanceof Float fl) {
+			this.value = Double.valueOf(fl);
 		} else if (value instanceof Number) {
 			this.value =  ((Number)value).longValue();
 		} else if (value instanceof CharSequence) {
@@ -75,7 +77,7 @@ public class JsonPrimitive extends JsonElement {
 		}
 	}
 
-	@Nonnull
+	@NotNull
 	public String asString() {
 		if (value==null) return "null";
 		return value.toString();
@@ -164,21 +166,21 @@ public class JsonPrimitive extends JsonElement {
 	}
 	
 	public BigDecimal asBigDecimal(BigDecimal defaultValue) {
-		if (value instanceof Number) {
-			return BigDecimal.valueOf(((Number) value).doubleValue());
-		} else if (value instanceof String) {
-			return new BigDecimal((String)value);
+		if (value instanceof Number number) {
+			return BigDecimal.valueOf(number.doubleValue());
+		} else if (value instanceof String str) {
+			return new BigDecimal(str);
 		} else {
 			return defaultValue;
 		}
 	}
 	
-	@Nonnull
+	@NotNull
 	public String toString() {
 		return toJson();
 	}
 	
-	@Nonnull
+	@NotNull
 	public Object getValue() {
 		return value;
 	}
@@ -220,12 +222,11 @@ public class JsonPrimitive extends JsonElement {
 			if (Double.isInfinite(d)) {
 				if (d<0) {
 					 writer.write("-Infinity");
-					 return;
-				} else {
+                } else {
 					 writer.write("Infinity");
-					 return;
-				}
-			}
+                }
+                return;
+            }
 			writer.write(value.toString());
 			return;
 		} else if (value instanceof Number) {
@@ -245,44 +246,30 @@ public class JsonPrimitive extends JsonElement {
 	//IMPLEMENTATION for Cloneable
 	@Override
 	public JsonPrimitive clone() {
-		JsonPrimitive result = new JsonPrimitive();
-		result.value = this.value;
-		return result;
+        return new JsonPrimitive(this.value);
 	}
 	
-	public static JsonPrimitive of(@Nonnull String s) {
-		JsonPrimitive result = new JsonPrimitive();
-		result.value = s;
-		return result;
+	public static JsonPrimitive of(@NotNull String s) {
+        return new JsonPrimitive(s);
 	}
 	
-	public static JsonPrimitive of(@Nonnull BigInteger n) {
-		JsonPrimitive result = new JsonPrimitive();
-		result.value = ((BigInteger)n).toString(16);
-		return result;
+	public static JsonPrimitive of(@NotNull BigInteger n) {
+        return new JsonPrimitive(n.toString(16));
 	}
 	
-	public static JsonPrimitive of(@Nonnull BigDecimal n) {
-		JsonPrimitive result = new JsonPrimitive();
-		result.value = n.toString(); //Appropriate for `new BigDecimal(s)`
-		return result;
+	public static JsonPrimitive of(@NotNull BigDecimal n) {
+        return new JsonPrimitive(n);
 	}
 	
-	public static JsonPrimitive of(@Nonnull Double d) {
-		JsonPrimitive result = new JsonPrimitive();
-		result.value = d;
-		return result;
+	public static JsonPrimitive of(double d) {
+        return new JsonPrimitive(d);
 	}
 	
-	public static JsonPrimitive of(@Nonnull Long l) {
-		JsonPrimitive result = new JsonPrimitive();
-		result.value = l;
-		return result;
+	public static JsonPrimitive of(long l) {
+        return new JsonPrimitive(l);
 	}
 	
-	public static JsonPrimitive of(@Nonnull Boolean b) {
-		JsonPrimitive result = new JsonPrimitive();
-		result.value = b;
-		return result;
+	public static JsonPrimitive of(boolean b) {
+        return new JsonPrimitive(b);
 	}
 }
