@@ -7,7 +7,7 @@ plugins {
 
 group = "blue.endless"
 base.archivesName = "Jankson"
-version = "1.2.4"
+version = "1.2.3"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17

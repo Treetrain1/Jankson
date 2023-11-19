@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "jankson",
-  "version": "1.2.4",
+  "version": "1.2.3",
   "name": "Jankson",
   "description": "JSON / HJSON parser and preprocessor which preserves ordering and comments",
   "authors": [
