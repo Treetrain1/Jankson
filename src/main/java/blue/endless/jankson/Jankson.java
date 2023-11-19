@@ -49,26 +49,37 @@ import blue.endless.jankson.impl.AnnotatedElement;
 import blue.endless.jankson.impl.ElementParserContext;
 import blue.endless.jankson.impl.ObjectParserContext;
 import blue.endless.jankson.impl.ParserContext;
+import com.mojang.datafixers.DataFixer;
+import org.jetbrains.annotations.Nullable;
 
 
 public class Jankson {
-	private Deque<ParserFrame<?>> contextStack = new ArrayDeque<>();
+	private final Deque<ParserFrame<?>> contextStack = new ArrayDeque<>();
 	private JsonObject root;
 	private int line = 0;
 	private int column = 0;
 	private int withheldCodePoint = -1;
-	@SuppressWarnings("deprecation")
-	private Marshaller marshaller = blue.endless.jankson.impl.MarshallerImpl.getFallback();
-	private boolean allowBareRootObject = false;
-	
+
+	private final Marshaller marshaller;
+	private final boolean allowBareRootObject;
+	@Nullable
+	private final DataFixer dataFixer;
+	@Nullable
+	private final Integer version;
+
 	private int retries = 0;
 	private SyntaxError delayedError = null;
 	
-	private Jankson(Builder builder) {}
+	private Jankson(Builder builder) {
+		this.marshaller = builder.marshaller;
+		this.allowBareRootObject = builder.allowBareRootObject;
+		this.dataFixer = builder.dataFixer;
+		this.version = builder.version;
+	}
 	
 	@Nonnull
 	public JsonObject load(String s) throws SyntaxError {
-		ByteArrayInputStream in = new ByteArrayInputStream(s.getBytes(Charset.forName("UTF-8")));
+		ByteArrayInputStream in = new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8));
 		try {
 			return load(in);
 		} catch (IOException ex) {
@@ -155,12 +166,10 @@ public class Jankson {
 		withheldCodePoint = -1;
 		root = null;
 		
-		push(new ObjectParserContext(allowBareRootObject), (it)->{
-			root = it;
-		});
+		push(new ObjectParserContext(allowBareRootObject), it -> root = it);
 		
 		//int codePoint = 0;
-		while (root==null) {
+		while (root == null) {
 			if (delayedError!=null) {
 				throw delayedError;
 			}
@@ -174,7 +183,7 @@ public class Jankson {
 				int inByte = reader.read();
 				if (inByte==-1) {
 					//Walk up the stack sending EOF to things until either an error occurs or the stack completes
-					while(!contextStack.isEmpty()) {
+					while (!contextStack.isEmpty()) {
 						ParserFrame<?> frame = contextStack.pop();
 						try {
 							frame.context.eof();
@@ -190,6 +199,10 @@ public class Jankson {
 					if (root==null) {
 						root = new JsonObject();
 						root.marshaller = marshaller;
+						@Nullable DataFixer fixer = this.dataFixer;
+						@Nullable Integer newVersion = this.version;
+						if (fixer != null && newVersion != null)
+							root.dataFix(fixer, newVersion);
 					}
 					return root;
 				}
@@ -364,7 +377,7 @@ public class Jankson {
 	
 	/** Pushes a context onto the stack. MAY ONLY BE CALLED BY THE ACTIVE CONTEXT */
 	public <T> void push(ParserContext<T> t, Consumer<T> consumer) {
-		ParserFrame<T> frame = new ParserFrame<T>(t, consumer);
+		ParserFrame<T> frame = new ParserFrame<>(t, consumer);
 		frame.startLine = line;
 		frame.startCol = column;
 		contextStack.push(frame);
@@ -382,6 +395,10 @@ public class Jankson {
 		@SuppressWarnings("deprecation")
 		blue.endless.jankson.impl.MarshallerImpl marshaller = new blue.endless.jankson.impl.MarshallerImpl();
 		boolean allowBareRootObject = false;
+
+		@Nullable DataFixer dataFixer = null;
+
+		@Nullable Integer version = null;
 		
 		/**
 		 * Registers a deserializer that can transform a JsonObject into an instance of the specified class. Please note
@@ -455,11 +472,18 @@ public class Jankson {
 			return this;
 		}
 
+		public Builder withFixer(DataFixer dataFixer) {
+			this.dataFixer = dataFixer;
+			return this;
+		}
+
+		public Builder version(Integer version) {
+			this.version = version;
+			return this;
+		}
+
 		public Jankson build() {
-			Jankson result = new Jankson(this);
-			result.marshaller = marshaller;
-			result.allowBareRootObject = allowBareRootObject;
-			return result;
+			return new Jankson(this);
 		}
 	}
 	

@@ -32,12 +32,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import blue.endless.jankson.annotation.NonnullByDefault;
-import blue.endless.jankson.annotation.Nullable;
 import blue.endless.jankson.annotation.SerializedName;
 import blue.endless.jankson.api.SyntaxError;
 import blue.endless.jankson.impl.MarshallerImpl;
@@ -53,13 +53,13 @@ public class BasicTests {
 	
 	@Test
 	public void testPrimitiveEquality() {
-		Assert.assertEquals("Equal objects should produce equal json primitives", new JsonPrimitive("foo"), new JsonPrimitive(new String("foo"))); //Ensure no interning
-		Assert.assertEquals("Equal objects should produce equal json primitives", new JsonPrimitive(Double.valueOf(42)), new JsonPrimitive(new Double(42)));
+		Assert.assertEquals("Equal objects should produce equal json primitives", new JsonPrimitive("foo"), new JsonPrimitive("foo")); //Ensure no interning
+		Assert.assertEquals("Equal objects should produce equal json primitives", new JsonPrimitive(42.0), new JsonPrimitive(42.0));
 		
 		Assert.assertNotEquals("Non-Equal objects should produce non-equal json primitives", new JsonPrimitive("foo"), new JsonPrimitive("bar"));
 		Assert.assertNotEquals("Non-Equal objects should produce non-equal json primitives", new JsonPrimitive(42.0), new JsonPrimitive(42.1));
 		
-		Assert.assertNotEquals("Intended quirk behavior: 42.0 != 42", new JsonPrimitive(Double.valueOf(42)), Long.valueOf(42));
+		Assert.assertNotEquals("Intended quirk behavior: 42.0 != 42", new JsonPrimitive(42.0), new JsonPrimitive(42F));
 	}
 	
 	
@@ -69,10 +69,10 @@ public class BasicTests {
 		
 		try {
 			JsonObject after = jankson.load(before);
-			
-			Assert.assertTrue("Object should contain two keys", after.keySet().size()==2);
-			Assert.assertTrue("Object should contain mapping 'foo': 'bar'", after.get("foo").equals(new JsonPrimitive("bar")));
-			Assert.assertTrue("Object should contain mapping 'baz': 'bux'", after.get("baz").equals(new JsonPrimitive("bux")));
+
+			Assert.assertEquals("Object should contain two keys", 2, after.keySet().size());
+			Assert.assertEquals("Object should contain mapping 'foo': 'bar'", new JsonPrimitive("bar"), after.get("foo"));
+			Assert.assertEquals("Object should contain mapping 'baz': 'bux'", new JsonPrimitive("bux"), after.get("baz"));
 			Assert.assertNull("Object shouldn't contain keys that weren't defined", after.get("bar"));
 			
 		} catch (SyntaxError ex) {
@@ -629,12 +629,12 @@ public class BasicTests {
 		Class<?> wildcardArrayClass = TypeMagic.classForType(wildcardType);
 		Assert.assertEquals("Recovered wildcard array type should be Object[].", Object[].class, wildcardArrayClass);
 	}
-	
-	@NonnullByDefault
+
 	private static class NullContainer {
 		@Nullable
 		public String nullable = "";
-		
+
+		@NotNull
 		public String nonnull = "";
 	}
 	

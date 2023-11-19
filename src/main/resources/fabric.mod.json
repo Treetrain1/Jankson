@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "Wilder Wild",
+  "description": "JSON / HJSON parser and preprocessor which preserves ordering and comments",
+  "authors": [
+    "falkreon"
+  ],
+  "contributors": [
+    "Treetrain1",
+    "Juuxel",
+    "unascribed",
+    "halotroop2288",
+    "NikkyAI"
+  ],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/jankson",
+    "sources": "https://github.com/FrozenBlock/WilderWild",
+    "issues": "https://github.com/FrozenBlock/WilderWild/issues"
+  },
+  "license": "MIT",
+  "environment": "*",
+  "depends": {
+    "java": ">=17"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": [
+        "library"
+      ]
+    }
+  }
+}
