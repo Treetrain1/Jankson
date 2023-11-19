@@ -61,8 +61,8 @@ tasks.withType(JavaCompile::class) {
     options.encoding = "UTF-8"
 }
 
-if (file("private.gradle").exists()) {
-    apply(from = "private.gradle")
-}
+//if (file("private.gradle").exists()) {
+//    apply(from = "private.gradle")
+//}
 
 defaultTasks = mutableListOf("clean", "build", "sourcesJar");
