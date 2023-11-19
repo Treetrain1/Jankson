@@ -65,7 +65,11 @@ public class JsonObject extends JsonElement implements Map<String, JsonElement> 
 		if (shouldAddVersion) {
 			entries.add(
 				0,
-				new Entry("The version of this JSON file\nDon't modify!", versionKey, JanksonOps.INSTANCE.createNumeric(newVersion))
+				new Entry(
+					"The version of this JSON file\nDon't modify!",
+					versionKey,
+					JanksonOps.INSTANCE.createNumeric(newVersion)
+				)
 			);
 		}
 
