@@ -491,12 +491,12 @@ public class Jankson {
 			return this;
 		}
 
-		public Builder withFixer(DataFixer dataFixer) {
+		public Builder withFixer(@Nullable DataFixer dataFixer) {
 			this.dataFixer = dataFixer;
 			return this;
 		}
 
-		public Builder version(Integer version) {
+		public Builder version(@Nullable Integer version) {
 			this.version = version;
 			return this;
 		}
