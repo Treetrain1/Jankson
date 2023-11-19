@@ -39,8 +39,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import javax.annotation.Nonnull;
-
 import blue.endless.jankson.api.DeserializationException;
 import blue.endless.jankson.api.DeserializerFunction;
 import blue.endless.jankson.api.Marshaller;
@@ -50,6 +48,7 @@ import blue.endless.jankson.impl.ElementParserContext;
 import blue.endless.jankson.impl.ObjectParserContext;
 import blue.endless.jankson.impl.ParserContext;
 import com.mojang.datafixers.DataFixer;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
@@ -77,7 +76,7 @@ public class Jankson {
 		this.version = builder.version;
 	}
 
-	@Nonnull
+	@NotNull
 	public JsonObject load(String s) throws SyntaxError {
 		ByteArrayInputStream in = new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8));
 		try {
@@ -87,7 +86,7 @@ public class Jankson {
 		}
 	}
 
-	@Nonnull
+	@NotNull
 	public JsonObject load(File f) throws IOException, SyntaxError {
 		try(InputStream in = new FileInputStream(f)) {
 			return load(in);
@@ -159,7 +158,7 @@ public class Jankson {
 		return BAD_CHARACTER;
 	}*/
 
-	@Nonnull
+	@NotNull
 	public JsonObject load(InputStream in) throws IOException, SyntaxError {
 		InputStreamReader reader = new InputStreamReader(in, StandardCharsets.UTF_8);
 		
@@ -224,7 +223,7 @@ public class Jankson {
 	 * <p>
 	 * Does not support datafixers
 	 */
-	@Nonnull
+	@NotNull
 	public JsonElement loadElement(String s) throws SyntaxError {
 		ByteArrayInputStream in = new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8));
 		try {
@@ -239,7 +238,7 @@ public class Jankson {
 	 * <p>
 	 * Does not support datafixers
 	 */
-	@Nonnull
+	@NotNull
 	public JsonElement loadElement(File f) throws IOException, SyntaxError {
 		try(InputStream in = new FileInputStream(f)) {
 			return loadElement(in);
@@ -252,7 +251,7 @@ public class Jankson {
 	 * <p>
 	 * Does not support datafixers
 	 */
-	@Nonnull
+	@NotNull
 	public JsonElement loadElement(InputStream in) throws IOException, SyntaxError {
 		InputStreamReader reader = new InputStreamReader(in, StandardCharsets.UTF_8);
 
