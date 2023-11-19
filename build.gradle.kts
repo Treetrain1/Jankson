@@ -46,11 +46,6 @@ tasks.jar {
 }
 
 tasks {
-    register("sourcesJar", Jar::class) {
-        dependsOn(classes)
-        archiveClassifier = "sources"
-        from(sourceSets.main.get().allSource)
-    }
 
     register("javadocJar", Jar::class) {
         dependsOn(classes)
@@ -77,6 +72,22 @@ tasks.withType(JavaCompile::class) {
 artifacts {
     archives(sourcesJar)
     archives(javadocJar)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+
+            artifact(javadocJar)
+
+            pom {
+                groupId = project.group.toString()
+                artifactId = rootProject.base.archivesName.get().lowercase()
+                version = project.version.toString()
+            }
+        }
+    }
 }
 
 if (file("private.gradle").exists()) {
