@@ -339,11 +339,15 @@ public class Jankson {
 	}
 
 	public <T> JsonElement toJson(T t) {
-		return marshaller.serialize(t);
+		JsonElement element = marshaller.serialize(t);
+		element.tryDataFix(this.dataFixer, this.version);
+		return element;
 	}
 	
 	public <T> JsonElement toJson(T t, Marshaller alternateMarshaller) {
-		return alternateMarshaller.serialize(t);
+		JsonElement element = alternateMarshaller.serialize(t);
+		element.tryDataFix(this.dataFixer, this.version);
+		return element;
 	}
 	
 	private void processCodePoint(int codePoint) throws SyntaxError {

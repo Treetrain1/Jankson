@@ -36,8 +36,12 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import blue.endless.jankson.api.JanksonOps;
 import blue.endless.jankson.api.Marshaller;
 import blue.endless.jankson.impl.serializer.CommentSerializer;
+import com.mojang.datafixers.DataFixer;
+import com.mojang.serialization.Dynamic;
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("deprecation")
 public class JsonArray extends JsonElement implements List<JsonElement>, Iterable<JsonElement> {
@@ -59,7 +63,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 			this.add(marshaller.serialize(t));
 		}
 	}
-	
+
 	public JsonElement get(int i) {
 		return entries.get(i).value;
 	}
@@ -208,7 +212,10 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 		
 		writer.append(']');
 	}
-	
+
+	@Override
+	public void dataFix(@NotNull DataFixer dataFixer, int newVersion) {}
+
 	public String toString() {
 		return toJson(true, false, 0);
 	}

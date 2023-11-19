@@ -24,6 +24,9 @@
 
 package blue.endless.jankson;
 
+import com.mojang.datafixers.DataFixer;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.io.Writer;
 
@@ -54,7 +57,10 @@ public class JsonNull extends JsonElement {
 	public void toJson(Writer writer, JsonGrammar grammar, int depth) throws IOException {
 		writer.write("null");
 	}
-	
+
+	@Override
+	public void dataFix(@NotNull DataFixer dataFixer, int newVersion) {}
+
 	//IMPLEMENTATION for Cloneable
 	@Override
 	public JsonNull clone() {

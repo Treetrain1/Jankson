@@ -29,6 +29,8 @@ import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
+
+import com.mojang.datafixers.DataFixer;
 import org.jetbrains.annotations.NotNull;
 
 import blue.endless.jankson.api.Escaper;
@@ -242,7 +244,10 @@ public class JsonPrimitive extends JsonElement {
 		writer.write(Escaper.escapeString(value.toString())); //TODO: Configurable unicode blocks to escape?
 		writer.write('\"');
 	}
-	
+
+	@Override
+	public void dataFix(@NotNull DataFixer dataFixer, int newVersion) {}
+
 	//IMPLEMENTATION for Cloneable
 	@Override
 	public JsonPrimitive clone() {

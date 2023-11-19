@@ -232,11 +232,10 @@ public class MarshallerImpl implements blue.endless.jankson.api.Marshaller {
 		
 		if (clazz.equals(String.class)) {
 			//Almost everything has a String representation
-			if (elem instanceof JsonObject) return (T)((JsonObject)elem).toJson(false, false);
-			if (elem instanceof JsonArray) return (T)((JsonArray)elem).toJson(false, false);
-			if (elem instanceof JsonPrimitive) {
-				((JsonPrimitive)elem).getValue();
-				return (T)((JsonPrimitive)elem).asString();
+			if (elem instanceof JsonObject) return (T) elem.toJson(false, false);
+			if (elem instanceof JsonArray) return (T) elem.toJson(false, false);
+			if (elem instanceof JsonPrimitive primitive) {
+				return (T) primitive.asString();
 			}
 			if (elem instanceof JsonNull) return (T)"null";
 			
@@ -249,10 +248,10 @@ public class MarshallerImpl implements blue.endless.jankson.api.Marshaller {
 			if (func!=null) {
 				return (T)func.apply(((JsonPrimitive)elem).getValue());
 			} else {
-				if (failFast) throw new DeserializationException("Don't know how to unpack value '"+elem.toString()+"' into target type '"+clazz.getCanonicalName()+"'");
+				if (failFast) throw new DeserializationException("Don't know how to unpack value '"+ elem + "' into target type '"+clazz.getCanonicalName()+"'");
 				return null;
 			}
-		} else if (elem instanceof JsonObject) {
+		} else if (elem instanceof JsonObject obj) {
 			
 			
 			if (clazz.isPrimitive()) throw new DeserializationException("Can't marshall json object into primitive type "+clazz.getCanonicalName());
@@ -260,8 +259,7 @@ public class MarshallerImpl implements blue.endless.jankson.api.Marshaller {
 				if (failFast) throw new DeserializationException("Can't marshall json object into a json primitive");
 				return null;
 			}
-			
-			JsonObject obj = (JsonObject) elem;
+
 			obj.setMarshaller(this);
 			
 			if (typeAdapters.containsKey(clazz)) {

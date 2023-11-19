@@ -24,6 +24,10 @@
 
 package blue.endless.jankson;
 
+import com.mojang.datafixers.DataFixer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -54,4 +58,11 @@ public abstract class JsonElement implements Cloneable {
 	}
 	
 	public abstract void toJson(Writer writer, JsonGrammar grammar, int depth) throws IOException;
+
+	public abstract void dataFix(@NotNull DataFixer dataFixer, int newVersion);
+
+	public void tryDataFix(@Nullable DataFixer dataFixer, @Nullable Integer newVersion) {
+		if (dataFixer != null && newVersion != null)
+			dataFix(dataFixer, newVersion);
+	}
 }

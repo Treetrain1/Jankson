@@ -54,7 +54,7 @@ public class JsonObject extends JsonElement implements Map<String, JsonElement> 
 
 	public void dataFix(@NotNull DataFixer dataFixer, int newVersion) {
 		boolean shouldAddVersion = true;
-		String versionKey = "version";
+		String versionKey = "schema_version";
 
 		for (Entry entry : entries) {
 			if (versionKey.equals(entry.key)) {
