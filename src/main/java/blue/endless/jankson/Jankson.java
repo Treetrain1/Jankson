@@ -30,7 +30,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -496,7 +495,7 @@ public class Jankson {
 			return this;
 		}
 
-		public Builder version(@Nullable Integer version) {
+		public Builder withVersion(@Nullable Integer version) {
 			this.version = version;
 			return this;
 		}

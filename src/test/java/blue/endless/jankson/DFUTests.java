@@ -15,7 +15,7 @@ public class DFUTests {
     @Test
     public void blankDfuTest() {
         DataFixer dataFixer = new DataFixerBuilder(0).buildUnoptimized();
-        Jankson jankson = Jankson.builder().withFixer(dataFixer).version(0).build();
+        Jankson jankson = Jankson.builder().withFixer(dataFixer).withVersion(0).build();
 
         JsonElement data = jankson.toJson(new Data());
         String str = data.toJson();
