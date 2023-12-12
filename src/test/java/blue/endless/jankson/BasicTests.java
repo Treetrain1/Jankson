@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import blue.endless.jankson.annotation.SaveToggle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Assert;
@@ -549,6 +550,9 @@ public class BasicTests {
 		private ArrayList<String> strings;
 		private Map<String, Character.UnicodeScript> scripts = new HashMap<>();
 		private Queue<String> queue = new ArrayDeque<>();
+
+		@SaveToggle(false)
+		private boolean unsavedEntry = true;
 	}
 	
 	/**

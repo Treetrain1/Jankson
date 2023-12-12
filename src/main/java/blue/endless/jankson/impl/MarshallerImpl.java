@@ -39,14 +39,13 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import javax.annotation.Nullable;
-
 import blue.endless.jankson.Comment;
 import blue.endless.jankson.JsonArray;
 import blue.endless.jankson.JsonElement;
 import blue.endless.jankson.JsonNull;
 import blue.endless.jankson.JsonObject;
 import blue.endless.jankson.JsonPrimitive;
+import blue.endless.jankson.annotation.SaveToggle;
 import blue.endless.jankson.annotation.SerializedName;
 import blue.endless.jankson.annotation.Serializer;
 import blue.endless.jankson.api.DeserializationException;
@@ -55,6 +54,7 @@ import blue.endless.jankson.api.Marshaller;
 import blue.endless.jankson.impl.serializer.DeserializerFunctionPool;
 import blue.endless.jankson.impl.serializer.DeserializerFunctionPool.FunctionMatchFailedException;
 import blue.endless.jankson.magic.TypeMagic;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @deprecated For removal; please use {@link blue.endless.jankson.api.Marshaller}
@@ -416,10 +416,16 @@ public class MarshallerImpl implements blue.endless.jankson.api.Marshaller {
 				if (nameAnnotation!=null) name = nameAnnotation.value();
 				
 				Comment comment = f.getAnnotation(Comment.class);
-				if (comment==null) {
-					result.put(name, serialize(child));
-				} else {
-					result.put(name, serialize(child), comment.value());
+				@Nullable SaveToggle saveToggle = null;
+				if (f.isAnnotationPresent(SaveToggle.class)) {
+					saveToggle = f.getAnnotation(SaveToggle.class);
+				}
+				if (saveToggle == null || saveToggle.value()) {
+					if (comment == null) {
+						result.put(name, serialize(child));
+					} else {
+						result.put(name, serialize(child), comment.value());
+					}
 				}
 			} catch (IllegalArgumentException | IllegalAccessException e) {}
 		}
@@ -439,10 +445,16 @@ public class MarshallerImpl implements blue.endless.jankson.api.Marshaller {
 				if (nameAnnotation!=null) name = nameAnnotation.value();
 				
 				Comment comment = f.getAnnotation(Comment.class);
-				if (comment==null) {
-					result.put(name, serialize(child));
-				} else {
-					result.put(name, serialize(child), comment.value());
+				@Nullable SaveToggle saveToggle = null;
+				if (f.isAnnotationPresent(SaveToggle.class)) {
+					saveToggle = f.getAnnotation(SaveToggle.class);
+				}
+				if (saveToggle == null || saveToggle.value()) {
+					if (comment == null) {
+						result.put(name, serialize(child));
+					} else {
+						result.put(name, serialize(child), comment.value());
+					}
 				}
 			} catch (IllegalArgumentException | IllegalAccessException e) {}
 		}
