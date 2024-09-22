@@ -27,12 +27,12 @@ repositories {
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:1.20.2")
+    minecraft("com.mojang:minecraft:1.21.1")
     mappings(loom.officialMojangMappings())
-    testImplementation("net.fabricmc:fabric-loader:0.14.24")
-    testImplementation("net.fabricmc:fabric-loader-junit:0.14.24")
+    testImplementation("net.fabricmc:fabric-loader:0.16.5")
+    testImplementation("net.fabricmc:fabric-loader-junit:0.16.5")
 
-    testImplementation("junit:junit:4.13.1")
+    testImplementation("junit:junit:4.13.2")
 
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
 }
