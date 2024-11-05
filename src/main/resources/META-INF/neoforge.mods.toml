@@ -1,0 +1,13 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "MIT"
+issueTrackerURL = "https://github.com/Treetrain1/Jankson"
+
+[[mods]]
+modId = "jankson"
+version = "1.2.3"
+displayName = "Jankson"
+displayURL = "https://github.com/Treetrain1/Jankson"
+credits = "Treetrain1,Juuxel,unascribed,halotroop2288,NikkyAI"
+authors = "falkreon"
+description = "JSON / HJSON parser and preprocessor which preserves ordering and comments"
