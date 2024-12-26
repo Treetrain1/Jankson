@@ -3,7 +3,7 @@ plugins {
     eclipse
     idea
     `maven-publish`
-    id("fabric-loom") version("+")
+    id("fabric-loom") version("1.10.+")
 }
 
 group = "blue.endless"
@@ -29,8 +29,8 @@ repositories {
 dependencies {
     minecraft("com.mojang:minecraft:1.21.1")
     mappings(loom.officialMojangMappings())
-    testImplementation("net.fabricmc:fabric-loader:0.16.5")
-    testImplementation("net.fabricmc:fabric-loader-junit:0.16.5")
+    testImplementation("net.fabricmc:fabric-loader:0.16.9")
+    testImplementation("net.fabricmc:fabric-loader-junit:0.16.9")
 
     testImplementation("junit:junit:4.13.2")
 
