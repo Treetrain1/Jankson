@@ -41,7 +41,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import blue.endless.jankson.api.DeserializationException;
 

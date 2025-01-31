@@ -33,19 +33,16 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
-import blue.endless.jankson.api.JanksonOps;
 import blue.endless.jankson.api.Marshaller;
 import blue.endless.jankson.impl.serializer.CommentSerializer;
 import com.mojang.datafixers.DataFixer;
-import com.mojang.serialization.Dynamic;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("deprecation")
 public class JsonArray extends JsonElement implements List<JsonElement>, Iterable<JsonElement> {
-	private List<Entry> entries = new ArrayList<>();
+	private final List<Entry> entries = new ArrayList<>();
 	protected Marshaller marshaller = blue.endless.jankson.impl.MarshallerImpl.getFallback();
 	
 	public JsonArray() {}
@@ -72,7 +69,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 	
 	public String getString(int index, String defaultValue) {
 		JsonElement elem = get(index);
-		if (elem != null && elem instanceof JsonPrimitive) {
+		if (elem instanceof JsonPrimitive) {
 			return ((JsonPrimitive)elem).asString();
 		}
 		return defaultValue;
@@ -80,7 +77,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 	
 	public boolean getBoolean(int index, boolean defaultValue) {
 		JsonElement elem = get(index);
-		if (elem != null && elem instanceof JsonPrimitive) {
+		if (elem instanceof JsonPrimitive) {
 			return ((JsonPrimitive)elem).asBoolean(defaultValue);
 		}
 		return defaultValue;
@@ -88,7 +85,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 	
 	public byte getByte(int index, byte defaultValue) {
 		JsonElement elem = get(index);
-		if (elem != null && elem instanceof JsonPrimitive) {
+		if (elem instanceof JsonPrimitive) {
 			return ((JsonPrimitive)elem).asByte(defaultValue);
 		}
 		return defaultValue;
@@ -96,7 +93,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 	
 	public char getChar(int index, char defaultValue) {
 		JsonElement elem = get(index);
-		if (elem != null && elem instanceof JsonPrimitive) {
+		if (elem instanceof JsonPrimitive) {
 			return ((JsonPrimitive)elem).asChar(defaultValue);
 		}
 		return defaultValue;
@@ -104,7 +101,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 	
 	public short getShort(int index, short defaultValue) {
 		JsonElement elem = get(index);
-		if (elem != null && elem instanceof JsonPrimitive) {
+		if (elem instanceof JsonPrimitive) {
 			return ((JsonPrimitive)elem).asShort(defaultValue);
 		}
 		return defaultValue;
@@ -112,7 +109,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 	
 	public int getInt(int index, int defaultValue) {
 		JsonElement elem = get(index);
-		if (elem != null && elem instanceof JsonPrimitive) {
+		if (elem instanceof JsonPrimitive) {
 			return ((JsonPrimitive)elem).asInt(defaultValue);
 		}
 		return defaultValue;
@@ -120,7 +117,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 	
 	public long getLong(int index, long defaultValue) {
 		JsonElement elem = get(index);
-		if (elem != null && elem instanceof JsonPrimitive) {
+		if (elem instanceof JsonPrimitive) {
 			return ((JsonPrimitive)elem).asLong(defaultValue);
 		}
 		return defaultValue;
@@ -128,7 +125,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 	
 	public float getFloat(int index, float defaultValue) {
 		JsonElement elem = get(index);
-		if (elem != null && elem instanceof JsonPrimitive) {
+		if (elem instanceof JsonPrimitive) {
 			return ((JsonPrimitive)elem).asFloat(defaultValue);
 		}
 		return defaultValue;
@@ -136,7 +133,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 	
 	public double getDouble(int index, double defaultValue) {
 		JsonElement elem = get(index);
-		if (elem != null && elem instanceof JsonPrimitive) {
+		if (elem instanceof JsonPrimitive) {
 			return ((JsonPrimitive)elem).asDouble(defaultValue);
 		}
 		return defaultValue;
@@ -163,7 +160,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 		
 		writer.append("[");
 		
-		if (entries.size()>0) {
+		if (!entries.isEmpty()) {
 			if (grammar.printWhitespace) {
 				writer.append('\n');
 			} else {
@@ -198,7 +195,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 			}
 		}
 		
-		if (entries.size()>0) {
+		if (!entries.isEmpty()) {
 			if (grammar.printWhitespace && depth>0) {
 				for(int j=0; j<effectiveDepth; j++) {
 					writer.append("\t");
@@ -206,7 +203,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 			}
 		}
 		
-		if (entries.size()>0) {
+		if (!entries.isEmpty()) {
 			if (!grammar.printWhitespace) writer.append(' ');
 		}
 		
@@ -220,7 +217,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 		return toJson(true, false, 0);
 	}
 	
-	public boolean add(@Nonnull JsonElement e, String comment) {
+	public boolean add(@NotNull JsonElement e, String comment) {
 		//if (contains(e)) return false;
 		
 		Entry entry = new Entry();
@@ -232,7 +229,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 	
 	@Override
 	public boolean equals(Object other) {
-		if (other==null || !(other instanceof JsonArray)) return false;
+		if (!(other instanceof JsonArray)) return false;
 		
 		List<Entry> a = this.entries;
 		List<Entry> b = ((JsonArray)other).entries;
@@ -254,7 +251,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 	}
 	
 	@Nullable
-	public <E> E get(@Nonnull Class<E> clazz, int index) {
+	public <E> E get(@NotNull Class<E> clazz, int index) {
 		JsonElement elem = get(index);
 		return marshaller.marshall(clazz, elem);
 	}
@@ -288,7 +285,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 		}
 		
 		@Override
-		public boolean add(@Nonnull JsonElement e) {
+		public boolean add(@NotNull JsonElement e) {
 			Entry entry = new Entry();
 			entry.value = e;
 			entries.add(entry);
@@ -310,7 +307,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 		
 		@Override
 		public boolean contains(Object o) {
-			if (o==null || !(o instanceof JsonElement)) return false;
+			if (!(o instanceof JsonElement)) return false;
 			
 			for(Entry entry : entries) {
 				if (entry.value.equals(o)) return true;
@@ -355,7 +352,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 		}
 		
 		@Override
-		public JsonElement[] toArray() {
+		public JsonElement @NotNull [] toArray() {
 			JsonElement[] result = new JsonElement[entries.size()];
 			for(int i=0; i<entries.size(); i++) {
 				result[i] = entries.get(i).value;
@@ -365,7 +362,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 		
 		@SuppressWarnings("unchecked")
 		@Override
-		public <T> T[] toArray(T[] a) {
+		public <T> T @NotNull [] toArray(T[] a) {
 			if (a.length<entries.size()) a = (T[]) new Object[entries.size()];
 			for(int i=0; i<entries.size(); i++) {
 				a[i] = (T)entries.get(i).value;
@@ -377,6 +374,7 @@ public class JsonArray extends JsonElement implements List<JsonElement>, Iterabl
 		}
 		
 		@Override
+		@NotNull
 		public Iterator<JsonElement> iterator() {
 			return new EntryIterator(entries);
 		}

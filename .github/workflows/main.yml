@@ -11,6 +11,10 @@ jobs:
         java: [21]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
+    env:
+      MAVEN_URL: ${{secrets.RELEASE_MAVEN_URL}}
+      MAVEN_USERNAME: ${{secrets.MAVEN_USERNAME}}
+      MAVEN_PASSWORD: ${{secrets.MAVEN_PASSWORD}}
     steps:
       - name: Cache Dependencies
         uses: actions/cache@v3
@@ -23,11 +27,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Setup JDK ${{ matrix.java }}
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: ${{ matrix.java }}
@@ -44,7 +48,7 @@ jobs:
         run: ref="${GITHUB_REF#refs/heads/}" && echo "::set-output name=branch::${ref////-}"
         id: ref
       - name: Capture Build Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Jankson-Artifacts-${{ steps.ref.outputs.branch }}
           path: build/libs/

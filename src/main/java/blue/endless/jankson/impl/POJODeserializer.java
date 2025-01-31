@@ -34,8 +34,8 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import blue.endless.jankson.JsonArray;
 import blue.endless.jankson.JsonElement;
@@ -216,27 +216,25 @@ public class POJODeserializer {
 	}
 	
 	public static void unpackMap(Map<Object, Object> map, Type keyType, Type valueType, JsonElement elem, blue.endless.jankson.api.Marshaller marshaller) throws DeserializationException {
-		if (!(elem instanceof JsonObject)) throw new DeserializationException("Cannot deserialize a "+elem.getClass().getSimpleName()+" into a Map - expected a JsonObject!");
+		if (!(elem instanceof JsonObject object)) throw new DeserializationException("Cannot deserialize a "+elem.getClass().getSimpleName()+" into a Map - expected a JsonObject!");
 		
 		map.clear(); //This may be a user-supplied collection, initialized in the constructor with default mappings. Erase those.
-		
-		JsonObject object = (JsonObject)elem;
-		for(Map.Entry<String, JsonElement> entry : object.entrySet()) {
+
+        for(Map.Entry<String, JsonElement> entry : object.entrySet()) {
 			try {
 				Object k = marshaller.marshall(keyType, new JsonPrimitive(entry.getKey()));
 				Object v = marshaller.marshall(valueType, entry.getValue());
 				if (k!=null && v!=null) map.put(k, v);
-			} catch (Throwable t) {}
+			} catch (Throwable ignored) {}
 		}
 	}
 	
 	public static void unpackCollection(Collection<Object> collection, Type elementType, JsonElement elem, blue.endless.jankson.api.Marshaller marshaller) throws DeserializationException {
-		if (!(elem instanceof JsonArray)) throw new DeserializationException("Cannot deserialize a "+elem.getClass().getSimpleName()+" into a Set - expected a JsonArray!");
+		if (!(elem instanceof JsonArray array)) throw new DeserializationException("Cannot deserialize a "+elem.getClass().getSimpleName()+" into a Set - expected a JsonArray!");
 		
 		collection.clear(); //This may be a user-supplied collection, initialized in the constructor with default items. Erase those.
-		
-		JsonArray array = (JsonArray)elem;
-		for(JsonElement arrayElem : array) {
+
+        for(JsonElement arrayElem : array) {
 			
 			Object o = marshaller.marshall(elementType, arrayElem);
 			if (o!=null) collection.add(o);
@@ -269,7 +267,7 @@ public class POJODeserializer {
 	 */
 	@SuppressWarnings("unchecked")
 	@Nullable
-	private static <A, B> InternalDeserializerFunction<B> makeDeserializer(@Nonnull Method m, @Nonnull Class<A> sourceClass, @Nonnull Class<B> targetClass) {
+	private static <A, B> InternalDeserializerFunction<B> makeDeserializer(@NotNull Method m, @NotNull Class<A> sourceClass, @NotNull Class<B> targetClass) {
 		if (!m.getReturnType().equals(targetClass)) return null;
 		Parameter[] params = m.getParameters();
 		if (params.length==1) {

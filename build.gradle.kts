@@ -1,9 +1,15 @@
+import groovy.xml.XmlSlurper
+import org.codehaus.groovy.runtime.ResourceGroovyMethods
+import java.io.FileNotFoundException
+import java.net.URI
+
 plugins {
     java
     eclipse
     idea
     `maven-publish`
     id("fabric-loom") version("1.10.+")
+    id("org.ajoberstar.grgit") version("+")
 }
 
 group = "blue.endless"
@@ -74,18 +80,80 @@ artifacts {
     archives(javadocJar)
 }
 
+val env: MutableMap<String, String> = System.getenv()
+
 publishing {
+    val mavenUrl = env["MAVEN_URL"]
+    val mavenUsername = env["MAVEN_USERNAME"]
+    val mavenPassword = env["MAVEN_PASSWORD"]
+
+    //val release = mavenUrl?.contains("release")
+    val snapshot = mavenUrl?.contains("snapshot")
+
+    val publishingValid = rootProject == project && !mavenUrl.isNullOrEmpty() && !mavenUsername.isNullOrEmpty() && !mavenPassword.isNullOrEmpty()
+
+    val publishVersion = project.version.toString()//makeModrinthVersion(mod_version)
+    val snapshotPublishVersion = "$publishVersion-SNAPSHOT" //publishVersion + if (snapshot == true) "-SNAPSHOT" else ""
+
+    val publishGroup = project.group.toString()
+    val artifact = rootProject.base.archivesName.get().lowercase()
+
+    val hash = if (grgit.branch != null && grgit.branch.current() != null) grgit.branch.current().fullName else ""
+
     publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
+        var publish = true
+        try {
+            if (publishingValid) {
+                try {
+                    val xml = ResourceGroovyMethods.getText(
+                        URI.create("$mavenUrl/${publishGroup.replace('.', '/')}/$snapshotPublishVersion/$publishVersion.pom").toURL()
+                    )
+                    val metadata = XmlSlurper().parseText(xml)
 
-            artifact(javadocJar)
-
-            pom {
-                groupId = project.group.toString()
-                artifactId = rootProject.base.archivesName.get().lowercase()
-                version = project.version.toString()
+                    if (metadata.getProperty("hash").equals(hash)) {
+                        publish = false
+                    }
+                } catch (ignored: FileNotFoundException) {
+                    // No existing version was published, so we can publish
+                }
+            } else {
+                publish = false
             }
+        } catch (e: Exception) {
+            publish = false
+            println("Unable to publish to maven. The maven server may be offline.")
+        }
+
+        if (publish) {
+            create<MavenPublication>("mavenJava") {
+                from(components["java"])
+
+                artifact(javadocJar)
+
+                pom {
+                    groupId = publishGroup
+                    artifactId = artifact
+                    version = snapshotPublishVersion
+                    withXml {
+                        asNode().appendNode("properties").appendNode("hash", hash)
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+
+        if (publishingValid) {
+            maven {
+                url = uri(mavenUrl!!)
+
+                credentials {
+                    username = mavenUsername
+                    password = mavenPassword
+                }
+            }
+        } else {
+            mavenLocal()
         }
     }
 }
