@@ -93,7 +93,7 @@ publishing {
     val publishingValid = rootProject == project && !mavenUrl.isNullOrEmpty() && !mavenUsername.isNullOrEmpty() && !mavenPassword.isNullOrEmpty()
 
     val publishVersion = project.version.toString()//makeModrinthVersion(mod_version)
-    val snapshotPublishVersion = "$publishVersion-SNAPSHOT" //publishVersion + if (snapshot == true) "-SNAPSHOT" else ""
+    val snapshotPublishVersion = "$publishVersion-mod-SNAPSHOT" //publishVersion + if (snapshot == true) "-SNAPSHOT" else ""
 
     val publishGroup = project.group.toString()
     val artifact = rootProject.base.archivesName.get().lowercase()
