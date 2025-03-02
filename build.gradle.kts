@@ -8,7 +8,6 @@ plugins {
     eclipse
     idea
     `maven-publish`
-    id("fabric-loom") version("1.10.+")
     id("org.ajoberstar.grgit") version("+")
 }
 
@@ -23,20 +22,14 @@ java {
     withSourcesJar()
 }
 
-loom {
-    runtimeOnlyLog4j = true
-}
-
 repositories {
     mavenCentral()
     maven("https://libraries.minecraft.net")
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:1.21.1")
-    mappings(loom.officialMojangMappings())
-    testImplementation("net.fabricmc:fabric-loader:0.16.9")
-    testImplementation("net.fabricmc:fabric-loader-junit:0.16.9")
+    implementation("org.jetbrains:annotations:24.0.0")
+    implementation("com.mojang:datafixerupper:8.0.16")
 
     testImplementation("junit:junit:4.13.2")
 
